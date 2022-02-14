@@ -5,10 +5,15 @@ let tasks =[];
 
 
 form.addEventListener('submit', (e)=>{
-    let input = task.value;
-    addTask(input);
-    task.value = '';
     e.preventDefault();
+    let input = task.value;
+    if(input !== ''){
+        addTask(input);
+        task.value = '';
+    }
+    else{
+        alert('Please enter the task before adding.');
+    }
 });
 
 function addTask(task){
