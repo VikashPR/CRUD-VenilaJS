@@ -7,6 +7,7 @@ let tasks =[];
 form.addEventListener('submit', (e)=>{
     let input = task.value;
     addTask(input);
+    task.value = '';
     e.preventDefault();
 });
 
