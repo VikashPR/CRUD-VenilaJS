@@ -1,19 +1,39 @@
 let form = document.getElementById('todo-form');
 let task = document.getElementById('newTask');
+let list = document.getElementById('task-list')
+let tasks = [];
 
-let tasks =[];
+form.addEventListener('submit', (e) => {
+    e.preventDefault();
 
-function renderTask(todo){
+    let input = task.value;
+    let todo = addTask(input);
+    if (input !== '') {
+        addTask(input);
+        renderTask(todo);
+        task.value = '';
+    } else {
+        alert('Please enter the task before adding.');
+    }
+});
+
+function renderTask(todo) {
     const list = document.getElementById('task-list');
     const node = document.createElement('li');
+    const item = document.getElementById(`${todo.id}`);
     node.classList.add('input-group')
     node.style.margin = '0 0 10px 0';
+    if (todo.deleted == true) {
+        item.remove();
+        return;
+    }
     node.innerHTML = `
     <div class="input-group-text">
                     <input class="form-check-input mt-0" type="checkbox" id="completedCheck"
                         aria-label="Checkbox for following text input">
                 </div>
-                <input class="form-control" type="text" value="${todo}" aria-label="readonly input example" readonly>
+                <input class="form-control" type="text" value="${todo.task}" aria-label="readonly input example" readonly>
+                <p class="d-none">${todo.id}</p>
                 <button class="btn btn-outline-info" id="editBtn" type="button">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                         class="bi bi-pencil-square" viewBox="0 0 16 16">
@@ -23,7 +43,7 @@ function renderTask(todo){
                             d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
                     </svg>
                 </button>
-                <button class="btn btn-outline-danger" id="deleteBtn" type="button">
+                <button class="btn btn-outline-danger deleteBtn" type="button">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                         class="bi bi-trash3" viewBox="0 0 16 16">
                         <path
@@ -31,30 +51,40 @@ function renderTask(todo){
                     </svg>
                 </button>
     `;
-    list.append(node);
-    console.log("task rendering");
+    node.setAttribute('id', `${todo.id}`);
+    if (item) {
+        list.replaceChild(node, item);
+    } else {
+        list.append(node);
+    }
 }
 
-function addTask(task){
+function addTask(task) {
     const todo = {
         task,
         completed: false,
-        id: new Date().getTime()
+        id: new Date().getTime(),
     };
     tasks.push(todo);
-    console.log("TODO",todo);
-    console.log("Tasks Array",tasks);
+    return todo;
 }
 
-form.addEventListener('submit', (e)=>{
+list.addEventListener('click', function (e) {
     e.preventDefault();
-    let input = task.value;
-    if(input !== ''){
-        addTask(input);
-        renderTask(input);
-        task.value = '';
+    if (e.target.classList.contains('deleteBtn')) {
+        let item = e.target.parentElement.id;
+        deleteTask(item);
     }
-    else{
-        alert('Please enter the task before adding.');
-    }
+    console.log(e.target.parentElement.id);
 });
+
+function deleteTask(num) {
+    const index = tasks.findIndex(item => item.id == Number(num));
+    const todo = {
+        deleted: true,
+        ...tasks[index]
+    }
+    tasks = tasks.filter(item => item.id !== Number(num));
+    renderTask(todo);
+    console.log("New TODOS", tasks);
+}
